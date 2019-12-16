@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.discord.intelli_bot.commands.Command;
 import com.discord.intelli_bot.commands.HelpCommand;
+import com.discord.intelli_bot.commands.RecentCommand;
 import com.discord.intelli_bot.commands.SearchCommand;
 import com.discord.intelli_bot.exceptions.CommandExecutionException;
 
@@ -31,10 +32,12 @@ public class CommandListener extends ChatListener {
 	}
 
 	private void initialiseCommands() {
-		HelpCommand helpCommand = new HelpCommand();
+		HelpCommand helpCommand = new HelpCommand(this);
 		SearchCommand searchCommand = new SearchCommand();
+		RecentCommand recentCommand = new RecentCommand();
 		commands.add(helpCommand);
 		commands.add(searchCommand);
+		commands.add(recentCommand);
 	}
 
 	/**
@@ -71,18 +74,23 @@ public class CommandListener extends ChatListener {
 	@Override
 	protected void handlePublicMessage(MessageReceivedEvent event) throws Exception {
 		String commandString = event.getMessage().getContentRaw();
+		// if the message recieved is a single plain text
 		if (commandString.equals("hi")) {
 			send(event, "hey");
+			send(event, "\n To know more about me try typing !help");
+			return;
+			// if the message recieved contains ! => the message is some command
 		} else if (commandString.toString().contains("!")) {
-			if (commandString.toString().contains("help")) {
-				Command helpCommand = new HelpCommand();
-				send(event, helpCommand.getHelpMessage());
-				return;
-			} else if (commandString.contains("google")) {
-				Command googleCommand = new SearchCommand();
-				send(event, handleCommand(event, googleCommand));
-				return;
+			String[] parmas = commandString.split(" ");
+			String commandName = parmas[0].replace('!', ' ').trim();
+			List<Command> commands = getCommands();
+			for (Command command : commands) {
+				if (command.getName().equals(commandName)) {
+					send(event, handleCommand(event, command));
+					return;
+				}
 			}
+			throw new CommandExecutionException("Invalid command used. Please refer !help for usage.");
 		}
 	}
 

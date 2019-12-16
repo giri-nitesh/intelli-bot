@@ -6,4 +6,5 @@ public class AppConstants {
 	public static final String PROPERTIES_FOLDER_PATH = "src/main/resources/";
 	public static final String DB_FOLDER = "localdb/";
 	public static final String DB_FILE = "searched_results.txt";
+	public static final int RESULT_SET_SIZE = 5;
 }

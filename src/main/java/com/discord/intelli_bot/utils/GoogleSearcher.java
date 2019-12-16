@@ -2,16 +2,17 @@ package com.discord.intelli_bot.utils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
+import com.discord.intelli_bot.entities.SearchResponse;
+import com.discord.intelli_bot.entities.SearchResult;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.customsearch.Customsearch;
-import com.google.api.services.customsearch.model.Result;
 import com.google.api.services.customsearch.model.Search;
+import com.google.gson.Gson;
 
 /***
  * Searches on Google through Google Custom Search Engine. Google's CSE is not
@@ -43,22 +44,30 @@ public class GoogleSearcher {
 
 	public String search(String keywords) throws IOException {
 		String searchString = buildSearchString(keywords);
-		List<Result> results = new ArrayList<Result>();
+		SearchResponse searchResponse;
+		List<SearchResult> results = null;
 		try {
-			results = googleCustomSearch(searchString);
+			searchResponse = googleCustomSearch(searchString);
+			results = searchResponse.getItems();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		StringBuilder builder = new StringBuilder();
-		for (Result result : results) {
-			builder.append(result.getDisplayLink() + "\n");
-			System.out.println(result.getHtmlFormattedUrl());
-			System.out.println(result.getTitle());
-			// all attributes:
-			System.out.println(result.toString());
+		int resultCount = 0;
+		for (SearchResult result : results) {
+			if (resultCount < AppConstants.RESULT_SET_SIZE) {
+				builder.append(result.getLink() + "\n");
+				System.out.println(result.getSnippet());
+				System.out.println(result.getTitle());
+				// all attributes:
+				System.out.println(result.toString());
+				resultCount++;
+			} else
+				break;
 		}
 		// return builder.toString();
-		return "top 10 results";
+		return builder.toString();
+
 	}
 
 	/**
@@ -66,7 +75,7 @@ public class GoogleSearcher {
 	 * @param keyword
 	 * @return
 	 */
-	private List<Result> googleCustomSearch(String keyword) {
+	private SearchResponse googleCustomSearch(String keyword) {
 		Customsearch customsearch = null;
 		try {
 			customsearch = new Customsearch(new NetHttpTransport(), new JacksonFactory(), new HttpRequestInitializer() {
@@ -85,17 +94,17 @@ public class GoogleSearcher {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		List<Result> resultList = null;
+		SearchResponse searchResponse = null;
 		try {
 			Customsearch.Cse.List list = customsearch.cse().list(keyword);
 			list.setKey(apiKey);
 			list.setCx(customSearchEngineKey);
 			Search results = list.execute();
-			resultList = results.getItems();
+			searchResponse = new Gson().fromJson(results.toString(), SearchResponse.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return resultList;
+		return searchResponse;
 	}
 
 	/**

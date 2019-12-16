@@ -1,6 +1,7 @@
 package com.discord.intelli_bot.utils;
 
 import java.io.IOException;
+import java.util.Set;
 
 import com.discord.intelli_bot.dal.SearchedQueriesDaoImpl;
 import com.discord.intelli_bot.entities.SearchResult;
@@ -34,6 +35,10 @@ public class SearchTracker {
 	 * @return
 	 * @throws IOException
 	 */
+	public Set<String> getSearchedItemsSet() throws IOException {
+		return daoImpl.readRecordSetFromDb();
+	}
+
 	public String getSearchedItems() throws IOException {
 		return daoImpl.readRecordsFromDb();
 	}

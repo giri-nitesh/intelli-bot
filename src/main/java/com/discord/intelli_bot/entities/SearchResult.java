@@ -2,10 +2,36 @@ package com.discord.intelli_bot.entities;
 
 public class SearchResult {
 	private String title;
-	private String url;
+	private String link;
+	private String snippet;
 
-	public SearchResult(String title, String url) {
-		this.title = title;
-		this.url = url;
+	public String getTitle() {
+		return title;
 	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+	public void setLink(String link) {
+		this.link = link;
+	}
+
+	public String getSnippet() {
+		return snippet;
+	}
+
+	public void setSnippet(String snippet) {
+		this.snippet = snippet;
+	}
+
+	@Override
+	public String toString() {
+		return "SearchResult [title=" + title + ", link=" + link + ", snippet=" + snippet + "]";
+	}
+
 }

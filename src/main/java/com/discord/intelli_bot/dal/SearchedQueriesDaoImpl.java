@@ -50,15 +50,20 @@ public class SearchedQueriesDaoImpl {
 	 * @return
 	 * @throws IOException
 	 */
-	public String readRecordsFromDb() throws IOException {
+	public Set<String> readRecordSetFromDb() throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(dbFilePath));
-		StringBuilder builder = new StringBuilder();
 		String strCurrentLine;
 		Set<String> set = new HashSet<>();
 		while ((strCurrentLine = reader.readLine()) != null) {
 			set.add(strCurrentLine.trim());
 		}
 		reader.close();
+		return set;
+	}
+
+	public String readRecordsFromDb() throws IOException {
+		Set<String> set = readRecordSetFromDb();
+		StringBuilder builder = new StringBuilder();
 		for (String item : set) {
 			builder.append(item);
 			builder.append("\n");
